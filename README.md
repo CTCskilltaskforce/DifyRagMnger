@@ -14,6 +14,9 @@ DifyRagMngerは、指定したフォルダ内のファイルを自動的にDify�
 - 📊 **詳細なログ出力**: 処理状況を時系列でログファイルに出力
 - ⚙️ **設定ファイル**: YAML形式の設定ファイルで柔軟な設定が可能
 - 🔐 **認証対応**: Dify API認証をサポート
+- 🧩 **チャンク設定**: カスタマイズ可能な文書分割設定（文字数・オーバーラップサイズ）
+- 🔍 **ファイル更新検知**: SHA256ハッシュベースの変更検知で効率的な処理
+- 💾 **自動バックアップ**: 変換前ファイルの安全な保存
 
 ## 必要環境
 
@@ -62,24 +65,40 @@ dataset_id: your-dataset-id  # 対象のナレッジベースID
 # ログ出力先
 log_dir: ./log
 
+# バックアップ設定
+backup_folder: ./backup
+
+# チャンク設定（オプション）
+chunk_settings:
+  max_chunk_length: 4000  # 最大チャンク文字数（1-8192）
+  overlap_size: 200       # オーバーラップサイズ（0-max_chunk_length）
+
 # 処理対象のファイル拡張子
 file_extensions:
   - .md
   - .txt
   - .docx
   - .xlsx
+  - .pdf
+  - .pptx
 ```
 
 ### 2. バッチ処理の実行
 
 ```bash
+# 基本実行
 python -m src.cli.main config.yml
+
+# 強制実行（ファイル変更検知をスキップ）
+python -m src.cli.main config.yml --force
 ```
 
 ### 3. 処理結果の確認
 
 - 処理結果は `./log/YYYYMMDD/job-<timestamp>.log` に出力されます
+- バックアップファイルは `./backup/` に保存されます
 - 成功・失敗件数がサマリとして表示されます
+- ファイルメタデータは `.file_metadata.json` で管理されます
 
 ## 設定項目詳細
 
@@ -90,6 +109,9 @@ python -m src.cli.main config.yml
 | `api_key` | ✓ | Dify API認証キー |
 | `dataset_id` | ✓ | 対象のDifyナレッジベースID |
 | `log_dir` | | ログ出力先ディレクトリ（デフォルト: ./log） |
+| `backup_folder` | | バックアップ保存先ディレクトリ（デフォルト: ./backup） |
+| `chunk_settings.max_chunk_length` | | 最大チャンク文字数（1-8192、デフォルト: 自動） |
+| `chunk_settings.overlap_size` | | チャンクオーバーラップサイズ（0-max_chunk_length、デフォルト: 0） |
 | `file_extensions` | | 処理対象ファイル拡張子リスト |
 
 ## サポートファイル形式
@@ -137,11 +159,15 @@ src/
 ├── cli/           # CLIエントリポイント
 │   └── main.py
 ├── lib/           # ライブラリ
-│   ├── config.py      # 設定ファイル読み込み
-│   ├── converter.py   # ファイル変換処理
-│   ├── dify_client.py # Dify API クライアント
-│   └── logging.py     # ログ処理
-└── tests/         # テストコード
+│   ├── backup_manager.py  # バックアップ管理
+│   ├── config.py          # 設定ファイル読み込み（チャンク設定含む）
+│   ├── converter.py       # ファイル変換処理（10+フォーマット対応）
+│   ├── dify_client.py     # Dify API クライアント（チャンク対応）
+│   ├── file_tracker.py    # ファイル更新検知・メタデータ管理
+│   └── logging.py         # ログ処理
+└── tests/         # テストコード（82テスト）
+    ├── unit/              # ユニットテスト
+    └── integration/       # 統合テスト
 ```
 
 ### テスト実行

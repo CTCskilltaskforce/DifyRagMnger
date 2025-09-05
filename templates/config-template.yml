@@ -1,66 +1,58 @@
-# DifyRagMnger - config template (日本語)
-# 使い方: このファイルをコピーしてプロジェクトルートに config.yml として配置し、
-#        CLI 実行時にそのパスを指定してください。
-# 注意: API キーは可能なら環境変数で渡すことを推奨します。
+# DifyRagMnger v2.2.0 - 設定テンプレート
+# 使い方: このファイルをコピーして config.yml としてプロジェクトルートに配置
 
-# 変換対象フォルダ（絶対パスまたはプロジェクトルートからの相対パス）
-input_folder: "./docs"
+# 入力フォルダ（処理対象ファイルが含まれるフォルダ）
+input_folder: "./data"
 
-# Dify Knowledge API の base URL
-# 例: https://api.dify.ai/v1
-dify_url: "https://api.dify.ai/v1"
+# Dify APIの設定
+dify_url: "https://api.dify.ai/v1"  # DifyサーバーのベースURL
+api_key: "REPLACE_WITH_YOUR_API_KEY"  # DifyのAPIキー
+dataset_id: "REPLACE_WITH_YOUR_DATASET_ID"  # 対象のナレッジベースID
 
-# API Key を直接指定する場合（安全上の理由により推奨しません）
-# 代替: 環境変数 DIFY_API_KEY を使用する方法を推奨
-api_key: "REPLACE_WITH_YOUR_API_KEY"
+# ログ出力先
+log_dir: "./log"
 
-# デフォルト metadata（任意）
-# dataset_id を設定すると、ドキュメント登録は OpenAPI の
-# POST /datasets/{dataset_id}/document/create-by-text を使います。
-default_metadata:
-  dataset_id: null
-  source: "local-batch"
-  tags: []
+# バックアップ設定
+backup_folder: "./backup"
 
-# ファイル検出・変換設定
-conversion:
-  # サポートされる拡張子（大文字/小文字区別なし）
-  extensions:
-    - ".md"
-    - ".txt"
-  - ".docx"
-  - ".xlsx"
-  # Markdown 変換時のエンコーディング
-  encoding: "utf-8"
-  # markitdown や frontmatter を使う場合のフラグ
-  use_markitdown: true
-  use_frontmatter: true
+# チャンク設定（オプション - 省略すると自動設定）
+chunk_settings:
+  max_chunk_length: 4000  # 最大チャンク文字数（1-8192、推奨: 2000-6000）
+  overlap_size: 200       # オーバーラップサイズ（0-max_chunk_length、推奨: 10-20%）
 
-# バッチ実行に関する設定
-batch:
-  # 並列実行ワーカー数（I/O が多い場合は高めに）
-  workers: 4
-  # Dify API への再試行回数（リトライは指数バックオフ）
-  max_retries: 3
-  # 一度に送信するドキュメント数（必要に応じて調整）
-  batch_size: 10
+# 処理対象のファイル拡張子
+file_extensions:
+  - ".md"     # Markdown
+  - ".txt"    # プレーンテキスト
+  - ".docx"   # Word文書
+  - ".doc"    # Word文書（旧形式）
+  - ".xlsx"   # Excel
+  - ".xlsm"   # Excel（マクロ付き）
+  - ".xls"    # Excel（旧形式）
+  - ".pdf"    # PDF文書
+  - ".pptx"   # PowerPoint
+  - ".ppt"    # PowerPoint（旧形式）
+
+# 高度な設定（オプション）
+
+# 処理スキップの設定
+skip_existing: true  # 既存ファイルの変更検知を有効にする
+
+# バックアップクリーンアップ設定
+backup_retention_days: 30  # バックアップファイルの保持日数
 
 # ログ設定
-logging:
-  # ログディレクトリ（相対パス可）
-  dir: "./log"
-  # ログレベル: DEBUG/INFO/WARNING/ERROR
-  level: "INFO"
-  # JSON Lines で出力するか
-  json_lines: true
+log_level: "INFO"  # ログレベル: DEBUG/INFO/WARNING/ERROR
 
-# 安全・運用に関するメモ（README に含めるべき事項）
-# - API キーはサーバ側で管理し、公開リポジトリや共有ストレージに平文で置かないこと
-# - 大きなファイルは事前に分割または create-by-file エンドポイント（multipart/form-data）を使う
-# - 本テンプレートは例です。運用環境に合わせて調整してください。
+# 使用方法:
+# 1. このファイルを config.yml としてコピー
+# 2. API キーとデータセットIDを実際の値に置き換え
+# 3. python -m src.cli.main config.yml で実行
 
-# 例: 環境変数で API キーを渡す場合のサンプル (Windows cmd)
-# set DIFY_API_KEY=your_api_key_here
+# セキュリティ注意事項:
+# - API キーは環境変数での管理を推奨
+# - config.yml は .gitignore に含まれているため Git 管理対象外
+# - 本番環境では適切なアクセス制御を実施してください
 
 # 例: CLI 実行
 # C:\\Work\\workspace\\DifyRagMnger\\.venv\\Scripts\\python.exe -m src.cli.main C:\\Work\\workspace\\DifyRagMnger\\config.yml

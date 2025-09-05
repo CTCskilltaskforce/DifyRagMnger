@@ -28,6 +28,12 @@ dify_url: http://your-dify-server/v1
 api_key: dataset-xxxxxxxxx  # DifyのAPIキー
 dataset_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # Dataset ID
 log_dir: ./log
+backup_folder: ./backup
+
+# チャンク設定（オプション）
+chunk_settings:
+  max_chunk_length: 4000  # 1-8192文字（推奨: 2000-6000）
+  overlap_size: 200       # 0-max_chunk_length（推奨: 10-20%）
 
 # ファイル処理設定
 file_extensions:
@@ -35,6 +41,12 @@ file_extensions:
   - .txt
   - .docx
   - .xlsx
+  - .pdf
+  - .pptx
+  - .ppt
+  - .xls
+  - .doc
+  - .xlsm
 ```
 
 #### 入力フォルダの準備
@@ -61,11 +73,18 @@ print('認証OK' if client.verify_auth() else '認証NG')
 # テストファイルを作成
 echo "# テスト文書\nこれはテストです。" > data/test.md
 
-# バッチ実行
+# 初回実行（全ファイル処理）
 python -m src.cli.main config.yml
 
-# ログ確認
+# 2回目実行（変更検知により処理スキップ）
+python -m src.cli.main config.yml
+
+# 強制実行（変更検知をスキップ）
+python -m src.cli.main config.yml --force
+
+# ログ・バックアップ確認
 ls -la log/$(date +%Y%m%d)/
+ls -la backup/
 ```
 
 ## 定期実行の設定
