@@ -1,0 +1,65 @@
+# DifyRagMnger v2.2.0 - 設定テンプレート
+# 使い方: このファイルをコピーして config.yml としてプロジェクトルートに配置
+
+# 入力フォルダ（処理対象ファイルが含まれるフォルダ）
+input_folder: "./data"
+
+# Dify APIの設定
+dify_url: "https://api.dify.ai/v1"  # DifyサーバーのベースURL
+api_key: "REPLACE_WITH_YOUR_API_KEY"  # DifyのAPIキー
+dataset_id: "REPLACE_WITH_YOUR_DATASET_ID"  # 対象のナレッジベースID
+
+# ログ出力先
+log_dir: "./log"
+
+# バックアップ設定
+backup_folder: "./backup"
+
+# チャンク設定（オプション - 省略すると自動設定）
+chunk_settings:
+  max_chunk_length: 4000  # 最大チャンク文字数（1-8192、推奨: 2000-6000）
+  overlap_size: 200       # オーバーラップサイズ（0-max_chunk_length、推奨: 10-20%）
+
+# 処理対象のファイル拡張子
+file_extensions:
+  - ".md"     # Markdown
+  - ".txt"    # プレーンテキスト
+  - ".docx"   # Word文書
+  - ".doc"    # Word文書（旧形式）
+  - ".xlsx"   # Excel
+  - ".xlsm"   # Excel（マクロ付き）
+  - ".xls"    # Excel（旧形式）
+  - ".pdf"    # PDF文書
+  - ".pptx"   # PowerPoint
+  - ".ppt"    # PowerPoint（旧形式）
+
+# 高度な設定（オプション）
+
+# Excel Markdown変換の空白行処理設定
+empty_line_handling:
+  enabled: true               # 空白行処理機能の有効/無効
+  remove_consecutive: true    # 連続する空白行を単一改行に集約する
+  remove_trailing: true       # テーブル末尾の空白行を削除する
+  preserve_single_empty: true # 単一の空白行は保持する
+
+# 処理スキップの設定
+skip_existing: true  # 既存ファイルの変更検知を有効にする
+
+# バックアップクリーンアップ設定
+backup_retention_days: 30  # バックアップファイルの保持日数
+
+# ログ設定
+log_level: "INFO"  # ログレベル: DEBUG/INFO/WARNING/ERROR
+
+# 使用方法:
+# 1. このファイルを config.yml としてコピー
+# 2. API キーとデータセットIDを実際の値に置き換え
+# 3. python -m src.cli.main config.yml で実行
+
+# セキュリティ注意事項:
+# - API キーは環境変数での管理を推奨
+# - config.yml は .gitignore に含まれているため Git 管理対象外
+# - 本番環境では適切なアクセス制御を実施してください
+
+# 例: CLI 実行
+# C:\\Work\\workspace\\DifyRagMnger\\.venv\\Scripts\\python.exe -m src.cli.main C:\\Work\\workspace\\DifyRagMnger\\config.yml
